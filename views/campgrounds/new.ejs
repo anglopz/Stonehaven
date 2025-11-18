@@ -332,10 +332,24 @@
             });
         }
 
-        // Prevenir problemas de zoom en iOS
-        document.addEventListener('touchstart', function (e) {
-            if (e.target === fileInput) {
-                e.preventDefault();
+        //Mejor manejo de touch
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileInput = document.getElementById('simpleFile');
+
+            // Solo prevenir el comportamiento por defecto en elementos que no sean el file input
+            document.addEventListener('touchstart', function (e) {
+                // Solo prevenir en elementos que no sean inputs, textareas, o selects
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Asegurar que el file input sea clickeable en móviles
+            if (fileInput) {
+                fileInput.addEventListener('touchstart', function (e) {
+                    // Permitir que el evento continúe
+                    e.stopPropagation();
+                }, { passive: true });
             }
-        }, { passive: false });
+        });
     </script>
