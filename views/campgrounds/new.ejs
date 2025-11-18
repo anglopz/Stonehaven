@@ -186,14 +186,13 @@
                                 </span>
                             </div>
 
-                            <!-- Input file VISIBLE para todos los dispositivos -->
+                            <!-- Input file VISIBLE y ESTILIZADO para todos los dispositivos -->
                             <div class="text-center">
-                                <input type="file" id="simpleFile" class="form-control d-md-none" accept="image/*"
-                                    name="images" multiple>
-                                <button type="button" class="btn btn-success btn-lg d-none d-md-inline-block"
-                                    onclick="document.getElementById('simpleFile').click()">
+                                <label for="simpleFile" class="btn btn-success btn-lg w-100 w-md-auto">
                                     <i class="bi bi-folder2-open me-2"></i>Select Images
-                                </button>
+                                </label>
+                                <input type="file" id="simpleFile" class="d-none" accept="image/*" name="images"
+                                    multiple>
                             </div>
 
                             <div id="simpleFileName" class="mt-3 text-center"></div>
