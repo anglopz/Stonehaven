@@ -247,54 +247,27 @@
         </div>
     </div>
 
-    <script>
-        function updateFileName(input) {
-            const fileNameSpan = document.getElementById('simpleFileName');
-            if (input.files.length > 0) {
-                const fileNames = Array.from(input.files).map(f => f.name).join(', ');
-                fileNameSpan.textContent = `${input.files.length} image(s) selected: ${fileNames}`;
-                fileNameSpan.className = 'badge bg-success fs-6 mt-2';
+   <script>
+    // Solo la función básica para mostrar nombres de archivos
+    function updateFileName(input) {
+        const fileNameSpan = document.getElementById('simpleFileName');
+        if (input.files.length > 0) {
+            const fileList = Array.from(input.files).slice(0, 3).map(f => f.name);
+            const remainingFiles = input.files.length - 3;
 
-                // Feedback táctil para móviles
-                if ('vibrate' in navigator) {
-                    navigator.vibrate(100);
-                }
-            } else {
-                fileNameSpan.textContent = '';
+            let fileText = `${input.files.length} image(s) selected: ${fileList.join(', ')}`;
+            if (remainingFiles > 0) {
+                fileText += ` and ${remainingFiles} more...`;
             }
+
+            fileNameSpan.innerHTML = `
+                <div class="alert alert-success d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <div>${fileText}</div>
+                </div>
+            `;
+        } else {
+            fileNameSpan.innerHTML = '';
         }
-
-        // Add hover effects to delete checkboxes
-        document.querySelectorAll('.delete-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const card = this.closest('.card');
-                if (this.checked) {
-                    card.style.opacity = '0.6';
-                    card.style.border = '2px solid #dc3545';
-                } else {
-                    card.style.opacity = '1';
-                    card.style.border = '';
-                }
-            });
-        });
-
-        //  Mejor manejo de touch
-        document.addEventListener('DOMContentLoaded', function () {
-            const fileInput = document.getElementById('simpleFile');
-
-            // Mejor manejo de eventos táctiles
-            document.addEventListener('touchstart', function (e) {
-                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            // Permitir que el file input funcione correctamente
-            if (fileInput) {
-                fileInput.addEventListener('touchstart', function (e) {
-                    e.stopPropagation();
-                }, { passive: true });
-            }
-        });
-
-    </script>
+    }
+</script>

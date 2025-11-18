@@ -277,6 +277,7 @@
     </div>
 
     <script>
+        // Solo la función básica para mostrar nombres de archivos
         function updateFileName(input) {
             const fileNameSpan = document.getElementById('simpleFileName');
             if (input.files.length > 0) {
@@ -294,21 +295,16 @@
                     <div>${fileText}</div>
                 </div>
             `;
-
-                // Feedback táctil para móviles
-                if ('vibrate' in navigator) {
-                    navigator.vibrate(100);
-                }
             } else {
                 fileNameSpan.innerHTML = '';
             }
         }
 
-        // Drag and drop functionality (solo desktop)
+        // Drag and drop functionality (solo desktop) - mantenemos esto porque SÍ funciona
         const fileUploadArea = document.querySelector('.file-upload-area');
         const fileInput = document.getElementById('simpleFile');
 
-        if (fileUploadArea) {
+        if (fileUploadArea && fileInput) {
             fileUploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 fileUploadArea.style.background = '#e8f5e8';
@@ -331,25 +327,4 @@
                 updateFileName(fileInput);
             });
         }
-
-        //Mejor manejo de touch
-        document.addEventListener('DOMContentLoaded', function () {
-            const fileInput = document.getElementById('simpleFile');
-
-            // Solo prevenir el comportamiento por defecto en elementos que no sean el file input
-            document.addEventListener('touchstart', function (e) {
-                // Solo prevenir en elementos que no sean inputs, textareas, o selects
-                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            // Asegurar que el file input sea clickeable en móviles
-            if (fileInput) {
-                fileInput.addEventListener('touchstart', function (e) {
-                    // Permitir que el evento continúe
-                    e.stopPropagation();
-                }, { passive: true });
-            }
-        });
     </script>
