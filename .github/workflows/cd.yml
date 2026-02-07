@@ -31,7 +31,8 @@ jobs:
         run: npm run build
       
       - name: Deploy to Render
-        uses: johnbeynon/render-deploy@v1.1.0
-        with:
-          service-id: ${{ secrets.RENDER_SERVICE_ID }}
-          api-key: ${{ secrets.RENDER_API_KEY }}
+        if: false  # Disabled - Deploy via Render's auto-deploy from GitHub or configure webhook
+        run: |
+          echo "🚀 Deployment configured on Render dashboard"
+          echo "Enable auto-deploy from GitHub in Render settings"
+          echo "Or configure RENDER_DEPLOY_HOOK_URL secret to enable webhook deployment"
