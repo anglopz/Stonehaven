@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: recamp-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: re-camp
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - recamp-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.backend
+    container_name: recamp-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DB_URL: mongodb://mongodb:27017/re-camp
+      SECRET: ${SECRET}
+      MAPBOX_TOKEN: ${MAPBOX_TOKEN}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_KEY: ${CLOUDINARY_KEY}
+      CLOUDINARY_SECRET: ${CLOUDINARY_SECRET}
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+    volumes:
+      - ./src/backend:/app/src/backend
+      - ./src/shared:/app/src/shared
+      - /app/node_modules
+    networks:
+      - recamp-network
+    command: npm run dev:backend
+
+  frontend:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.frontend
+    container_name: recamp-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://backend:3000
+    depends_on:
+      - backend
+    volumes:
+      - ./src/frontend:/app/src/frontend
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - recamp-network
+    command: npm run dev:frontend
+
+volumes:
+  mongodb_data:
+
+networks:
+  recamp-network:
+    driver: bridge

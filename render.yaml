@@ -1,0 +1,59 @@
+# Render.com Blueprint Configuration
+# https://render.com/docs/blueprint-spec
+
+services:
+  # Backend API Service
+  - type: web
+    name: recamp-backend
+    env: node
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: npm ci && npm run build:backend
+    startCommand: npm run start:backend
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DB_URL
+        fromDatabase:
+          name: recamp-mongodb
+          property: connectionString
+      - key: SECRET
+        generateValue: true
+        sync: false
+      - key: MAPBOX_TOKEN
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_KEY
+        sync: false
+      - key: CLOUDINARY_SECRET
+        sync: false
+
+  # Frontend Web Service
+  - type: web
+    name: recamp-frontend
+    env: node
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: npm ci && npm run build:frontend
+    startCommand: npm run start:frontend
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://recamp-backend.onrender.com
+
+# MongoDB Database
+databases:
+  - name: recamp-mongodb
+    databaseName: re-camp
+    user: recamp-user
+    region: oregon
+    plan: starter
+    ipAllowList: []

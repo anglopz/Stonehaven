@@ -1,10 +1,15 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config()
+}
+
 const mongoose = require('mongoose');
 const cities = require('./cities');
 const { campgroundThemes } = require('./seedThemes');
 const Campground = require('../models/campground');
 const User = require('../models/user');
 
-mongoose.connect('mongodb://127.0.0.1:27017/re-camp');
+const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/re-camp';
+mongoose.connect(dbUrl);
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));

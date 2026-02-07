@@ -2,9 +2,6 @@ if (process.env.NODE_ENV !== "production") {
     require('dotenv').config()
 };
 
-console.log(process.env.SECRET)
-console.log(process.env.API_KEY)
-
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -30,9 +27,9 @@ const reviewRoutes = require('./routes/reviews');
 const dbUrl = process.env.DB_URL;
 const MongoStore = require('connect-mongo');
 
-// 'mongodb://127.0.0.1:27017/re-camp'
-
-console.log('DB URL:', dbUrl); // Verifica que sea correcta
+if (!dbUrl) {
+    throw new Error('DB_URL environment variable is not set');
+}
 
 mongoose.connect(dbUrl)
   .then(() => console.log('✅ MongoDB connected successfully'))
@@ -57,20 +54,25 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(sanitizeV5({ replaceWith: '_' }));
 
-// MongoStore - FORZAR DB
+// MongoStore configuration
+if (!process.env.SECRET) {
+    throw new Error('SECRET environment variable is not set');
+}
+
 const store = MongoStore.create({
-    mongoUrl: 'mongodb+srv://0angeloal_db_user:D32EL1AsQaOHVAO4@cluster0.vnsvfeu.mongodb.net/re-camp?retryWrites=true&w=majority&appName=Cluster0',
-    dbName: 're-camp', // ← Doble seguridad
+    mongoUrl: dbUrl,
+    dbName: 're-camp',
     collectionName: 'sessions',
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret: 'thisshouldbeabettersecret!'
+        secret: process.env.SECRET
     }
 });
+
 const sessionConfig = {
     store,
     name: 'mainCookie',
-    secret: 'thisshouldbeabettersecret',
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
