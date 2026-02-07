@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node ../../dist/backend/index.js",
+    "start": "echo 'Use npm run start:backend from project root'",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

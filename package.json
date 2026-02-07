@@ -17,7 +17,7 @@
     "build:backend": "cd src/backend && npm run build",
     "build:frontend": "cd src/frontend && npm run build",
     "start": "npm run start:backend",
-    "start:backend": "cd src/backend && npm start",
+    "start:backend": "node dist/backend/index.js",
     "start:frontend": "cd src/frontend && npm start",
     "test": "npm run test:backend && npm run test:frontend",
     "test:backend": "cd src/backend && npm test",
