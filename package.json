@@ -1,36 +1,72 @@
 {
-  "name": "recamp",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "recamp-refactored",
+  "version": "2.0.0",
+  "description": "Modernized Recamp application with TypeScript and React",
+  "private": true,
+  "workspaces": [
+    "src/backend",
+    "src/frontend"
+  ],
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd src/backend && npm run dev",
+    "dev:frontend": "cd src/frontend && npm run dev",
+    "dev:docker": "docker-compose up",
+    "dev:docker:down": "docker-compose down",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd src/backend && npm run build",
+    "build:frontend": "cd src/frontend && npm run build",
+    "start": "npm run start:backend",
+    "start:backend": "cd src/backend && npm start",
+    "start:frontend": "cd src/frontend && npm start",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd src/backend && npm test",
+    "test:frontend": "cd src/frontend && npm test",
+    "test:watch": "npm run test:backend -- --watch",
+    "test:coverage": "npm run test:backend -- --coverage && npm run test:frontend -- --coverage",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "type-check": "tsc --noEmit",
+    "type-check:backend": "cd src/backend && tsc --noEmit",
+    "type-check:frontend": "cd src/frontend && tsc --noEmit",
+    "prepare": "husky install || true"
   },
-  "keywords": [],
+  "keywords": [
+    "campground",
+    "booking",
+    "typescript",
+    "react",
+    "nextjs"
+  ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@mapbox/mapbox-sdk": "^0.16.2",
-    "cloudinary": "^1.41.3",
-    "connect-flash": "^0.1.1",
-    "connect-mongo": "^5.1.0",
-    "dotenv": "^17.2.3",
-    "ejs": "^3.1.10",
-    "ejs-mate": "^4.0.0",
-    "express": "^5.1.0",
-    "express-mongo-sanitize": "^2.2.0",
-    "express-session": "^1.18.2",
-    "helmet": "^8.1.0",
-    "joi": "^18.0.1",
-    "method-override": "^3.0.0",
-    "mongoose": "^8.19.0",
-    "multer": "^2.0.2",
-    "multer-storage-cloudinary": "^4.0.0",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "passport-local-mongoose": "^8.0.0",
-    "sanitize-html": "^2.17.0"
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   }
 }

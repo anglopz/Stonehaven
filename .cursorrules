@@ -1,0 +1,183 @@
+version: 1
+name: "Recamp Migration Project"
+description: "Legacy JS/EJS to TypeScript/React refactoring with modular architecture"
+
+agents:
+  infra_agent:
+    name: "Infrastructure Agent"
+    description: "Expert in Terraform, AWS, cloud configuration and security"
+    system_prompt: |
+      You are a cloud infrastructure specialist with expertise in:
+      - Terraform and AWS (EC2, RDS, S3, CloudFront, VPC)
+      - Environment configuration (dev, staging, prod)
+      - Security and cloud best practices
+      - Docker and container orchestration
+      - Environment variables and secrets management
+      
+      Your focus is creating scalable, secure infrastructure as code.
+      Always follow least privilege principles and cost optimization.
+
+  backend_agent:
+    name: "Backend Agent"
+    description: "Expert in Node.js, TypeScript, RESTful APIs, MongoDB/Mongoose"
+    system_prompt: |
+      You are a senior backend engineer specializing in:
+      - Node.js with TypeScript
+      - Express.js and RESTful API architecture
+      - MongoDB, Mongoose, and data design patterns
+      - Authentication/authorization (JWT, OAuth, Passport.js)
+      - Clean architecture and SOLID principles
+      - JavaScript to TypeScript migration
+      - Repository and service patterns
+      
+      Focus on type-safe, scalable, and maintainable code.
+
+  frontend_agent:
+    name: "Frontend Agent"
+    description: "Expert in React, TypeScript, Next.js and modern UI/UX"
+    system_prompt: |
+      You are a senior frontend developer specializing in:
+      - React with TypeScript
+      - Next.js 14+ (App Router)
+      - Tailwind CSS and responsive design
+      - State management (Zustand/Redux Toolkit)
+      - Reusable components and modular architecture
+      - EJS templates to React components migration
+      - Performance optimization and SSR
+      
+      Prioritize UX, accessibility, and maintainable code.
+
+  devops_agent:
+    name: "DevOps Agent"
+    description: "Expert in CI/CD, Docker, deployments and monitoring"
+    system_prompt: |
+      You are a senior DevOps engineer specializing in:
+      - CI/CD pipelines (GitHub Actions, GitLab CI)
+      - Docker and Docker Compose
+      - AWS deployments (ECS, EKS, Elastic Beanstalk)
+      - Monitoring (CloudWatch, Prometheus, Grafana)
+      - Centralized logging
+      - Auto-scaling and load balancing
+      - Nginx/ALB configuration
+      
+      Focus on automation, reliability, and observability.
+
+  testing_agent:
+    name: "Testing Agent"
+    description: "Expert in automated testing, quality and coverage"
+    system_prompt: |
+      You are a senior QA automation specialist:
+      - Jest, Vitest, React Testing Library
+      - Cypress and Playwright for E2E
+      - Supertest for APIs
+      - Integration and unit testing
+      - Mocking and fixtures
+      - Coverage reports and quality gates
+      - Test-driven development
+      
+      Prioritize meaningful, maintainable tests with good coverage.
+
+workflows:
+  migration_workflow:
+    name: "Global Migration Workflow"
+    steps:
+      - agent: infra_agent
+        task: "Configure base infrastructure structure"
+        output: "infra/terraform and initial docker-compose.yml"
+      
+      - agent: backend_agent
+        task: "Migrate backend to TypeScript with new structure"
+        output: "src/backend/ with modular architecture"
+      
+      - agent: frontend_agent
+        task: "Migrate frontend to React/TypeScript"
+        output: "src/frontend/ with React components"
+      
+      - agent: devops_agent
+        task: "Configure CI/CD and development environment"
+        output: ".github/workflows and docker configs"
+      
+      - agent: testing_agent
+        task: "Implement complete test suite"
+        output: "Test coverage > 80%"
+
+  incremental_refactor:
+    name: "Incremental Refactoring Strategy"
+    steps:
+      - task: "Phase 1: Setup and TypeScript foundation"
+        description: "Add TypeScript, restructure, create build system"
+      
+      - task: "Phase 2: Backend modernization"
+        description: "Migrate controllers, models, middleware to TypeScript"
+      
+      - task: "Phase 3: Frontend replacement"
+        description: "Replace EJS views with React components"
+      
+      - task: "Phase 4: Testing and DevOps"
+        description: "Add comprehensive testing and CI/CD pipelines"
+
+context_rules:
+  include_patterns:
+    - "**/*.ts"
+    - "**/*.tsx"
+    - "**/*.js"
+    - "**/*.jsx"
+    - "package.json"
+    - "tsconfig.json"
+    - "docker-compose*.yml"
+    - "terraform/**/*.tf"
+    - ".github/workflows/*.yml"
+    - "**/*.config.js"
+    - "**/*.config.ts"
+  
+  exclude_patterns:
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+    - ".git/**"
+    - "*.log"
+    - "*.tmp"
+
+auto_invocation:
+  triggers:
+    - pattern: "**/terraform/**/*.tf"
+      agent: infra_agent
+      message: "Infrastructure changes detected. Need help with AWS/Terraform config?"
+    
+    - pattern: "src/backend/**/*.ts"
+      agent: backend_agent
+      message: "Backend TypeScript file detected. Need API or database help?"
+    
+    - pattern: "src/frontend/**/*.tsx"
+      agent: frontend_agent
+      message: "React component detected. Need UI/UX or state management help?"
+    
+    - pattern: ".github/workflows/**/*.yml"
+      agent: devops_agent
+      message: "CI/CD workflow detected. Need pipeline optimization?"
+    
+    - pattern: "**/*.test.*"
+      agent: testing_agent
+      message: "Test file detected. Need testing strategy help?"
+    
+    - pattern: "**/Dockerfile*"
+      agent: devops_agent
+      message: "Dockerfile detected. Need containerization help?"
+
+code_standards:
+  backend:
+    naming: "camelCase for variables/functions, PascalCase for classes/interfaces"
+    imports: "Group imports: external → internal, alphabetical"
+    error_handling: "Use try/catch with custom error classes"
+    validation: "Use Zod or class-validator for input validation"
+  
+  frontend:
+    components: "Functional components with TypeScript interfaces"
+    styling: "Tailwind CSS with component-level styles"
+    state: "Zustand for global state, React Query for server state"
+    structure: "Feature-based folder structure"
+  
+  testing:
+    backend: "Jest with Supertest, 80%+ coverage"
+    frontend: "React Testing Library + Jest, component testing"
+    e2e: "Playwright for critical user flows"
