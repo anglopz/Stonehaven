@@ -13,10 +13,21 @@ jobs:
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     environment:
       name: production
-      url: https://recamp.onrender.com
+      url: https://stonehaven.onrender.com
     
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - name: Checkout retry (on GitHub 500/502)
+        if: failure() && steps.checkout.outcome == 'failure'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
