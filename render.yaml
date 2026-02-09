@@ -3,11 +3,14 @@
 #
 # To deploy: Render Dashboard → New → Blueprint → Connect this repo
 # This creates a NEW service (does not update existing ones)
+#
+# IMPORTANT: Service name is explicitly set to "stonehaven-backend"
+# If Render suggests "recamp", manually change it to "stonehaven-backend"
 
 services:
   # Backend API Service
   - type: web
-    name: recamp
+    name: stonehaven-backend  # Explicit service name - change if Render suggests "recamp"
     runtime: node
     region: oregon
     plan: free
@@ -18,6 +21,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: "3000"
       - key: MAPBOX_TOKEN
         sync: false
       - key: CLOUDINARY_CLOUD_NAME

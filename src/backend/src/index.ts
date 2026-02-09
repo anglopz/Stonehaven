@@ -1,6 +1,30 @@
-import 'dotenv/config';
-import express, { Request, Response, NextFunction } from 'express';
+import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
+import express, { Request, Response, NextFunction } from 'express';
+
+// Load environment variables from root .env file
+// Try multiple possible locations to handle different execution contexts
+const possiblePaths = [
+  path.resolve(__dirname, '../../../.env'), // From src/backend/src or dist
+  path.resolve(process.cwd(), '../.env'),    // From src/backend (when cd src/backend)
+  path.resolve(process.cwd(), '.env'),       // Current directory fallback
+];
+
+let envLoaded = false;
+for (const envPath of possiblePaths) {
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    envLoaded = true;
+    break;
+  }
+}
+
+if (!envLoaded) {
+  console.warn('⚠️  Warning: .env file not found. Tried:', possiblePaths);
+  // Still try default dotenv behavior
+  dotenv.config();
+}
 import methodOverride from 'method-override';
 import ejsMate from 'ejs-mate';
 import session from 'express-session';
