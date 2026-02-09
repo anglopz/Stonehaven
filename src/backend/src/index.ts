@@ -51,10 +51,13 @@ const startServer = async (): Promise<void> => {
   // Set query parser
   app.set('query parser', 'extended');
 
-  // View engine setup
+  // View engine setup — use cwd so path works from repo root (local and Render)
+  const projectRoot = process.cwd();
+  const viewsDir = path.join(projectRoot, 'archive', 'legacy', 'views');
+  const publicDir = path.join(projectRoot, 'archive', 'legacy', 'public');
   app.engine('ejs', ejsMate);
   app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, '../../../views'));
+  app.set('views', viewsDir);
 
   // Body parsing middleware
   app.use(express.json());
@@ -62,7 +65,7 @@ const startServer = async (): Promise<void> => {
 
   // Other middleware
   app.use(methodOverride('_method'));
-  app.use(express.static(path.join(__dirname, '../../../public')));
+  app.use(express.static(publicDir));
   app.use(mongoSanitize({ replaceWith: '_' }));
 
   // Session configuration
