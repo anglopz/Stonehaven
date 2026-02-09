@@ -3,27 +3,25 @@ import path from 'path';
 import fs from 'fs';
 import express, { Request, Response, NextFunction } from 'express';
 
-// Load environment variables from root .env file
-// Try multiple possible locations to handle different execution contexts
-const possiblePaths = [
-  path.resolve(__dirname, '../../../.env'), // From src/backend/src or dist
-  path.resolve(process.cwd(), '../.env'),    // From src/backend (when cd src/backend)
-  path.resolve(process.cwd(), '.env'),       // Current directory fallback
-];
-
-let envLoaded = false;
-for (const envPath of possiblePaths) {
-  if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
-    envLoaded = true;
-    break;
+// In production (e.g. Render), use only platform env vars — never load .env
+const isProduction = process.env.NODE_ENV === 'production';
+if (!isProduction) {
+  const possiblePaths = [
+    path.resolve(__dirname, '../../../.env'),
+    path.resolve(process.cwd(), '../.env'),
+    path.resolve(process.cwd(), '.env'),
+  ];
+  let envLoaded = false;
+  for (const envPath of possiblePaths) {
+    if (fs.existsSync(envPath)) {
+      dotenv.config({ path: envPath, override: false });
+      envLoaded = true;
+      break;
+    }
   }
-}
-
-if (!envLoaded) {
-  console.warn('⚠️  Warning: .env file not found. Tried:', possiblePaths);
-  // Still try default dotenv behavior
-  dotenv.config();
+  if (!envLoaded) {
+    dotenv.config({ override: false });
+  }
 }
 import methodOverride from 'method-override';
 import ejsMate from 'ejs-mate';
@@ -97,8 +95,8 @@ const startServer = async (): Promise<void> => {
   app.use('/campgrounds', campgroundsRoutes);
   app.use('/campgrounds/:id/reviews', reviewsRoutes);
 
-  // 404 handler
-  app.all('*', (_req: Request, _res: Response, next: NextFunction) => {
+  // 404 handler (Express 5: '*' is invalid; use regex catch-all)
+  app.all(/(.*)/, (_req: Request, _res: Response, next: NextFunction) => {
     next(new ExpressError('Page not Found', 404));
   });
 
