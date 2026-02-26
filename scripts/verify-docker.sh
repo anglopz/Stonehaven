@@ -44,18 +44,18 @@ echo ""
 # Build backend Docker image
 echo "🏗️  Building backend Docker image..."
 echo "----------------------------------------"
-docker build -f infra/docker/Dockerfile.backend -t recamp-backend:test . 2>&1 | tail -20
+docker build -f infra/docker/Dockerfile.backend -t stonehaven-backend:test . 2>&1 | tail -20
 BACKEND_BUILD=$?
 print_status $BACKEND_BUILD "Backend Docker build"
 
 if [ $BACKEND_BUILD -eq 0 ]; then
   # Get image size
-  SIZE=$(docker images recamp-backend:test --format "{{.Size}}")
+  SIZE=$(docker images stonehaven-backend:test --format "{{.Size}}")
   echo "   📦 Image size: $SIZE"
   
   # Test image
   echo "   🧪 Testing backend image..."
-  docker run --rm recamp-backend:test node --version
+  docker run --rm stonehaven-backend:test node --version
   print_status $? "Backend image executable"
 fi
 echo ""
@@ -63,18 +63,18 @@ echo ""
 # Build frontend Docker image
 echo "🏗️  Building frontend Docker image..."
 echo "----------------------------------------"
-docker build -f infra/docker/Dockerfile.frontend -t recamp-frontend:test . 2>&1 | tail -20
+docker build -f infra/docker/Dockerfile.frontend -t stonehaven-frontend:test . 2>&1 | tail -20
 FRONTEND_BUILD=$?
 print_status $FRONTEND_BUILD "Frontend Docker build"
 
 if [ $FRONTEND_BUILD -eq 0 ]; then
   # Get image size
-  SIZE=$(docker images recamp-frontend:test --format "{{.Size}}")
+  SIZE=$(docker images stonehaven-frontend:test --format "{{.Size}}")
   echo "   📦 Image size: $SIZE"
   
   # Test image
   echo "   🧪 Testing frontend image..."
-  docker run --rm recamp-frontend:test node --version
+  docker run --rm stonehaven-frontend:test node --version
   print_status $? "Frontend image executable"
 fi
 echo ""
@@ -90,12 +90,12 @@ echo ""
 # Show images
 echo "📋 Docker Images Created:"
 echo "----------------------------------------"
-docker images | grep recamp
+docker images | grep stonehaven
 echo ""
 
 # Cleanup
 echo "🧹 Cleaning up test images..."
-docker rmi recamp-backend:test recamp-frontend:test 2>/dev/null || true
+docker rmi stonehaven-backend:test stonehaven-frontend:test 2>/dev/null || true
 echo ""
 
 # Summary

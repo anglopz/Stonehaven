@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║                                                              ║"
-echo "║           🔨 Recamp Build Verification                      ║"
+echo "║           🔨 Stonehaven Build Verification                      ║"
 echo "║                                                              ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
@@ -69,20 +69,20 @@ BACKEND_BUILD=$?
 print_status $BACKEND_BUILD "Backend build completed"
 
 if [ $BACKEND_BUILD -eq 0 ]; then
-  # Check if dist directory was created
-  if [ -d "dist/backend" ]; then
-    echo "   📁 Output directory: dist/backend"
-    echo "   📊 Files created: $(find dist/backend -type f | wc -l) files"
+  # Check if backend dist directory was created (backend outputs to src/backend/dist/)
+  if [ -d "src/backend/dist" ]; then
+    echo "   📁 Output directory: src/backend/dist"
+    echo "   📊 Files created: $(find src/backend/dist -type f | wc -l) files"
     
     # Check for index.js
-    if [ -f "dist/backend/index.js" ]; then
-      echo "   ✅ Entry point found: dist/backend/index.js"
+    if [ -f "src/backend/dist/index.js" ]; then
+      echo "   ✅ Entry point found: src/backend/dist/index.js"
     else
-      echo "   ⚠️  Entry point not found: dist/backend/index.js"
+      echo "   ⚠️  Entry point not found: src/backend/dist/index.js"
       BUILD_SUCCESS=false
     fi
   else
-    echo "   ❌ Output directory not created!"
+    echo "   ❌ Backend output directory not created!"
     BUILD_SUCCESS=false
   fi
 fi

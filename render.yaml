@@ -1,16 +1,16 @@
 # Render.com Blueprint Configuration
 # https://render.com/docs/blueprint-spec
 #
-# To deploy: Render Dashboard → New → Blueprint → Connect this repo
-# This creates a NEW service (does not update existing ones)
+# First-time deploy: Render Dashboard → New → Blueprint → Connect this repo.
+# Redeploy: Push to `main` — Render auto-deploys. Or Dashboard → Manual Deploy.
+# This file defines only the backend API. Deploy the frontend separately (e.g. Vercel or another Render service).
 #
-# IMPORTANT: Service name is explicitly set to "stonehaven-backend"
-# If Render suggests "recamp", manually change it to "stonehaven-backend"
+# Service name: stonehaven-backend (if Render suggests "recamp", change it to stonehaven-backend)
 
 services:
   # Backend API Service
   - type: web
-    name: stonehaven-backend  # Explicit service name - change if Render suggests "recamp"
+    name: stonehaven-backend
     runtime: node
     region: oregon
     plan: free
@@ -23,6 +23,10 @@ services:
         value: production
       - key: PORT
         value: "3000"
+      - key: DB_URL
+        sync: false
+      - key: SECRET
+        generateValue: true
       - key: MAPBOX_TOKEN
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
@@ -31,7 +35,5 @@ services:
         sync: false
       - key: CLOUDINARY_SECRET
         sync: false
-      - key: DB_URL
+      - key: FRONTEND_URL
         sync: false
-      - key: SECRET
-        generateValue: true

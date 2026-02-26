@@ -1,5 +1,5 @@
 version: 1
-name: "Recamp Migration Project"
+name: "Stonehaven Migration Project"
 description: "Legacy JS/EJS to TypeScript/React refactoring with modular architecture"
 
 agents:

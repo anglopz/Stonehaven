@@ -1,6 +1,6 @@
 # 🚀 Deployment Guide
 
-This guide covers deploying the ReCamp application to production.
+This guide covers deploying the Stonehaven application to production.
 
 ## Quick Deploy to Render
 
@@ -18,7 +18,7 @@ The easiest way to deploy is using the `render.yaml` blueprint:
 Required environment variables:
 
 ```bash
-DB_URL=mongodb+srv://user:password@cluster.mongodb.net/re-camp
+DB_URL=mongodb+srv://user:password@cluster.mongodb.net/stonehaven
 SECRET=your-secure-random-secret-key
 MAPBOX_TOKEN=pk.your-mapbox-token
 CLOUDINARY_CLOUD_NAME=your-cloudinary-name
@@ -82,7 +82,7 @@ ls -la src/frontend/.next/
 1. Create a new Web Service on Render
 2. Connect your GitHub repository
 3. Configure:
-   - **Name**: `recamp-backend`
+   - **Name**: `stonehaven-backend`
    - **Environment**: Node
    - **Build Command**: `npm run build:backend`
    - **Start Command**: `npm run start:backend`
@@ -95,7 +95,7 @@ ls -la src/frontend/.next/
 1. Create a new Web Service on Render
 2. Connect your GitHub repository
 3. Configure:
-   - **Name**: `recamp-frontend`
+   - **Name**: `stonehaven-frontend`
    - **Environment**: Node
    - **Build Command**: `npm run build:frontend`
    - **Start Command**: `npm run start:frontend`
@@ -109,12 +109,12 @@ If deploying with Docker:
 
 ```bash
 # Build images
-docker build -f infra/docker/Dockerfile.backend -t recamp-backend .
-docker build -f infra/docker/Dockerfile.frontend -t recamp-frontend .
+docker build -f infra/docker/Dockerfile.backend -t stonehaven-backend .
+docker build -f infra/docker/Dockerfile.frontend -t stonehaven-frontend .
 
 # Run containers
-docker run -p 3000:3000 --env-file .env recamp-backend
-docker run -p 3001:3001 --env-file .env recamp-frontend
+docker run -p 3000:3000 --env-file .env stonehaven-backend
+docker run -p 3001:3001 --env-file .env stonehaven-frontend
 ```
 
 ## Health Checks

@@ -1,5 +1,8 @@
 # Files and directories to ignore during Render deployment
 
+# Legacy code (EJS/JS) — not part of production stack
+archive/
+
 # Development files
 .git/
 .github/

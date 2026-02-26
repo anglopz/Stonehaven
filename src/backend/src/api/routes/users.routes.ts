@@ -7,14 +7,25 @@ import { catchAsync } from '../../utils';
 const router = Router();
 
 /**
- * GET /register - Render registration form
+ * GET /api/user/me - Current user (for React frontend)
  */
-router.get('/register', (_req: Request, res: Response) => {
-  res.render('users/register');
+router.get('/api/user/me', (req: Request, res: Response) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ success: false, message: 'Not authenticated' });
+  }
+  const user = req.user as { _id: unknown; username?: string; email?: string };
+  return res.json({ _id: user._id, username: user.username, email: user.email });
 });
 
 /**
- * POST /register - Register new user
+ * GET /register - 404 (React serves the page)
+ */
+router.get('/register', (_req: Request, res: Response) => {
+  return res.status(404).json({ success: false, message: 'Not found' });
+});
+
+/**
+ * POST /register - Register new user (JSON API)
  */
 router.post(
   '/register',
@@ -24,56 +35,59 @@ router.post(
       const registeredUser = await userService.registerUser(email, username, password);
 
       if (!registeredUser) {
-        req.flash('error', 'Registration failed');
-        return res.redirect('/register');
+        return res.status(400).json({ success: false, message: 'Registration failed' });
       }
 
       req.login(registeredUser, (err) => {
         if (err) return next(err);
-        req.flash('success', 'Welcome to ReCamp!');
-        res.redirect('/campgrounds');
+        const user = registeredUser as { _id: unknown; username?: string; email?: string };
+        res.status(201).json({ _id: user._id, username: user.username, email: user.email });
       });
-    } catch (error: any) {
-      req.flash('error', error.message);
-      res.redirect('/register');
+      return;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Registration failed';
+      return res.status(400).json({ success: false, message });
     }
   })
 );
 
 /**
- * GET /login - Render login form
+ * GET /login - 404 (React serves the page)
  */
 router.get('/login', (_req: Request, res: Response) => {
-  res.render('users/login');
+  res.status(404).json({ success: false, message: 'Not found' });
 });
 
 /**
- * POST /login - Login user
+ * POST /login - Login user (JSON API)
  */
 router.post(
   '/login',
   storeReturnTo,
-  passport.authenticate('local', {
-    failureFlash: true,
-    failureRedirect: '/login',
-  }),
-  (req: Request, res: Response) => {
-    req.flash('success', 'Welcome back!');
-    const redirectUrl = (res.locals.returnTo as string) || '/campgrounds';
-    res.redirect(redirectUrl);
+  (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate('local', (err: Error | null, user: Express.User | false) => {
+      if (err) return next(err);
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Invalid username or password' });
+      }
+      req.login(user, (loginErr) => {
+        if (loginErr) return next(loginErr);
+        const u = user as { _id: unknown; username?: string; email?: string };
+        res.json({ _id: u._id, username: u.username, email: u.email });
+      });
+    })(req, res, next);
   }
 );
 
 /**
- * GET /logout - Logout user
+ * GET /logout - Logout user (JSON API)
  */
 router.get('/logout', (req: Request, res: Response, next: NextFunction) => {
   req.logout(function (err) {
     if (err) {
       return next(err);
     }
-    req.flash('success', 'Goodbye!');
-    res.redirect('/campgrounds');
+    res.json({ success: true, message: 'Goodbye!' });
   });
 });
 

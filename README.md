@@ -1,4 +1,4 @@
-# ReCamp - Modernized Campground Application
+# Stonehaven - Modernized Campground Application
 
 Full-stack campground application built with TypeScript, React (Next.js), and Node.js/Express.
 
@@ -70,7 +70,7 @@ docker-compose up
 ## 📁 Project Structure
 
 ```
-recamp/
+stonehaven/
 ├── src/
 │   ├── backend/          # Express API (TypeScript)
 │   ├── frontend/         # Next.js App (TypeScript)

@@ -32,7 +32,7 @@ export function Navbar() {
           >
             <Trees className="h-8 w-8 text-emerald-600" />
             <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-              ReCamp
+              Stonehaven
             </span>
           </Link>
 

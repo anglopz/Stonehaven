@@ -1,6 +1,6 @@
 # 🔧 Deployment Scripts
 
-This folder contains verification and deployment scripts for the Recamp application.
+This folder contains verification and deployment scripts for the Stonehaven application.
 
 ## Available Scripts
 
@@ -143,8 +143,8 @@ docker ps
 docker system prune -f
 
 # Rebuild images
-docker build -f infra/docker/Dockerfile.backend -t recamp-backend .
-docker build -f infra/docker/Dockerfile.frontend -t recamp-frontend .
+docker build -f infra/docker/Dockerfile.backend -t stonehaven-backend .
+docker build -f infra/docker/Dockerfile.frontend -t stonehaven-frontend .
 ```
 
 ## Exit Codes

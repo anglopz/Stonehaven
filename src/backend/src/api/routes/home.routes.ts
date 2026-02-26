@@ -21,7 +21,7 @@ router.get('/health', (_req: Request, res: Response) => {
 });
 
 /**
- * GET / - Render home page
+ * GET / - Home page data (JSON for React frontend)
  */
 router.get(
   '/',
@@ -32,7 +32,7 @@ router.get(
       const reviewsCount = await reviewService.getReviewCount();
       const usersCount = await userService.getUserCount();
 
-      res.render('home', {
+      res.json({
         featuredCampgrounds,
         stats: {
           campgrounds: campgroundsCount,
@@ -42,7 +42,7 @@ router.get(
       });
     } catch (error) {
       console.error(error);
-      res.render('home', {
+      res.json({
         featuredCampgrounds: [],
         stats: { campgrounds: 0, reviews: 0, users: 0 },
       });

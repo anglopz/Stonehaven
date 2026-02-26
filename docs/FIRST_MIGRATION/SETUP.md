@@ -1,8 +1,8 @@
-# 🚀 ReCamp - Setup Guide
+# 🚀 Stonehaven - Setup Guide
 
 ## 📋 Project Overview
 
-**ReCamp** is a full-stack campground application built with:
+**Stonehaven** is a full-stack campground application built with:
 - **Backend**: Node.js + Express.js
 - **Database**: MongoDB (Mongoose)
 - **Template Engine**: EJS
@@ -44,9 +44,9 @@ Then edit `.env` with your actual credentials:
 
 ```env
 # Database Configuration
-DB_URL=mongodb://127.0.0.1:27017/re-camp
+DB_URL=mongodb://127.0.0.1:27017/stonehaven
 # Or for MongoDB Atlas:
-# DB_URL=mongodb+srv://username:password@cluster.mongodb.net/re-camp
+# DB_URL=mongodb+srv://username:password@cluster.mongodb.net/stonehaven
 
 # Session Secret (use a strong random string)
 SECRET=your-secret-key-here-change-in-production
@@ -116,7 +116,7 @@ The application will run on **http://localhost:3000**
 ## 📁 Project Structure
 
 ```
-recamp/
+stonehaven/
 ├── app.js                 # Main application entry point
 ├── controllers/           # Route controllers
 │   ├── campgrounds.js

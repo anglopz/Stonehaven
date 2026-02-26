@@ -3,20 +3,20 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:7
-    container_name: recamp-mongodb-dev
+    container_name: stonehaven-mongodb-dev
     restart: unless-stopped
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: re-camp
+      MONGO_INITDB_DATABASE: stonehaven
     volumes:
       - mongodb_data:/data/db
     networks:
-      - recamp-network
+      - stonehaven-network
 
 volumes:
   mongodb_data:
 
 networks:
-  recamp-network:
+  stonehaven-network:
     driver: bridge

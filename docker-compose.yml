@@ -3,28 +3,28 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:7
-    container_name: recamp-mongodb
+    container_name: stonehaven-mongodb
     restart: unless-stopped
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: re-camp
+      MONGO_INITDB_DATABASE: stonehaven
     volumes:
       - mongodb_data:/data/db
     networks:
-      - recamp-network
+      - stonehaven-network
 
   backend:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.backend
-    container_name: recamp-backend
+    container_name: stonehaven-backend
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: development
-      DB_URL: mongodb://mongodb:27017/re-camp
+      DB_URL: mongodb://mongodb:27017/stonehaven
       SECRET: ${SECRET}
       MAPBOX_TOKEN: ${MAPBOX_TOKEN}
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
@@ -39,14 +39,14 @@ services:
       - ./src/shared:/app/src/shared
       - /app/node_modules
     networks:
-      - recamp-network
+      - stonehaven-network
     command: npm run dev:backend
 
   frontend:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.frontend
-    container_name: recamp-frontend
+    container_name: stonehaven-frontend
     restart: unless-stopped
     ports:
       - "3001:3001"
@@ -60,12 +60,12 @@ services:
       - /app/node_modules
       - /app/.next
     networks:
-      - recamp-network
+      - stonehaven-network
     command: npm run dev:frontend
 
 volumes:
   mongodb_data:
 
 networks:
-  recamp-network:
+  stonehaven-network:
     driver: bridge

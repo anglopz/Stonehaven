@@ -16,7 +16,7 @@ cloudinary.config({
 export const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'ReCamp',
+    folder: 'Stonehaven',
     allowedFormats: ['jpeg', 'png', 'jpg'],
   } as any,
 });

@@ -1,6 +1,6 @@
-# ReCamp Frontend
+# Stonehaven Frontend
 
-Modern React/Next.js frontend for the ReCamp campground booking platform.
+Modern React/Next.js frontend for the Stonehaven campground booking platform.
 
 ## 🚀 Tech Stack
 

@@ -50,7 +50,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <h1 className="mb-6 text-5xl font-extrabold leading-tight md:text-6xl">
             <TreesIcon className="mx-auto mb-4 h-16 w-16" />
-            Welcome to ReCamp
+            Welcome to Stonehaven
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-xl opacity-90">
             Discover amazing campgrounds, share your favorite spots, and connect with
@@ -77,7 +77,7 @@ export default function HomePage() {
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-4xl font-bold text-gray-900">Why Choose ReCamp?</h2>
+            <h2 className="mb-4 text-4xl font-bold text-gray-900">Why Choose Stonehaven?</h2>
             <p className="text-lg text-gray-600">
               The ultimate platform for campers and outdoor lovers
             </p>
@@ -145,11 +145,11 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <h3 className="mb-4 text-3xl font-bold">Ready to Start Your Adventure?</h3>
           <p className="mb-8 text-lg opacity-90">
-            Join thousands of campers who trust ReCamp for their outdoor adventures
+            Join thousands of campers who trust Stonehaven for their outdoor adventures
           </p>
           <Link href={ROUTES.REGISTER}>
             <Button size="lg" variant="secondary" className="bg-white text-emerald-600 hover:bg-gray-100">
-              Join Now - It's Free!
+              Join Now - It&apos;s Free!
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>

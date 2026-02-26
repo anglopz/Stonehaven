@@ -17,7 +17,7 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2">
               <Trees className="h-8 w-8 text-emerald-500" />
-              <span className="text-2xl font-bold text-white">ReCamp</span>
+              <span className="text-2xl font-bold text-white">Stonehaven</span>
             </div>
             <p className="mt-4 text-sm text-gray-400">
               Find your perfect camping adventure under the stars. Discover amazing
@@ -60,7 +60,7 @@ export function Footer() {
         <div className="mt-12 border-t border-gray-800 pt-8">
           <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <p className="text-sm text-gray-400">
-              © {currentYear} ReCamp. All rights reserved.
+              © {currentYear} Stonehaven. All rights reserved.
             </p>
             <p className="flex items-center text-sm text-gray-400">
               Made with <Heart className="mx-1 h-4 w-4 text-red-500" /> for campers

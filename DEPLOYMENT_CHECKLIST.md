@@ -2,6 +2,12 @@
 
 ## Codebase Status
 
+### ✅ No Legacy JS/EJS in Production Stack
+- [x] **Backend**: TypeScript only; no EJS, no `res.render()`, no `views/`; API returns JSON
+- [x] **Frontend**: Next.js + React (TS/TSX only); no EJS templates, no legacy `.js` app code
+- [x] **Legacy code** lives only in `archive/legacy/` (Express+EJS, old routes/views)
+- [x] **Deployment**: `archive/` excluded via `.renderignore` and not used by build/start
+
 ### ✅ Structure Cleaned
 - [x] Legacy code moved to `archive/legacy/`
 - [x] Temporary test files archived
@@ -73,7 +79,7 @@ npm run lint
 ## Project Structure
 
 ```
-recamp/
+stonehaven/
 ├── src/
 │   ├── backend/          # TypeScript Express API
 │   ├── frontend/         # Next.js React App

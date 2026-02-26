@@ -51,7 +51,18 @@ run_check "Dependencies Check" "
   [ -d 'src/frontend/node_modules' ] && echo '✅ Frontend node_modules exists'
 "
 
-# 3. Linting Check
+# 3. Legacy Stack Check (no EJS/legacy JS in production code)
+run_check "Legacy stack exclusion (no EJS in src)" '
+  echo "🔍 Backend: no res.render, view engine, or ejs-mate..."
+  ! grep -rE "res\.render|view engine|ejs-mate" src/backend/src --include="*.ts" 2>/dev/null
+  backend_ok=$?
+  echo "🔍 Frontend: no EJS templates..."
+  ! find src/frontend -name "*.ejs" 2>/dev/null | grep -q .
+  frontend_ok=$?
+  if [ "$backend_ok" -eq 0 ] && [ "$frontend_ok" -eq 0 ]; then echo "✅ No legacy EJS in production stack"; exit 0; else exit 1; fi
+'
+
+# 4. Linting Check
 run_check "Linting & Formatting" "
   echo '🔍 Running ESLint...' &&
   npm run lint 2>&1 | tail -10 &&
@@ -59,19 +70,19 @@ run_check "Linting & Formatting" "
   npm run format:check 2>&1 | tail -10
 "
 
-# 4. Test Execution
+# 5. Test Execution
 run_check "Test Suite Execution" "
   echo '🧪 Running all tests...' &&
   npm test 2>&1 | tail -30
 "
 
-# 5. Build Verification
+# 6. Build Verification
 run_check "Build Verification" "
   echo '🏗️  Testing builds...' &&
   bash scripts/verify-build.sh
 "
 
-# 6. TypeScript Type Checking
+# 7. TypeScript Type Checking
 run_check "TypeScript Type Checking" "
   echo '🔍 Type checking backend...' &&
   cd src/backend && npm run type-check 2>&1 | tail -10 && cd ../.. &&
@@ -79,7 +90,7 @@ run_check "TypeScript Type Checking" "
   cd src/frontend && npm run type-check 2>&1 | tail -10 && cd ../..
 "
 
-# 7. Environment Variables Check
+# 8. Environment Variables Check
 run_check "Environment Variables" "
   echo '🔐 Checking .env.example exists...' &&
   [ -f '.env.example' ] && echo '✅ .env.example found' &&
@@ -91,7 +102,7 @@ run_check "Environment Variables" "
   echo '✅ All required variables documented'
 "
 
-# 8. Configuration Files Check
+# 9. Configuration Files Check
 run_check "Configuration Files" "
   echo '📋 Checking tsconfig.json...' &&
   [ -f 'tsconfig.json' ] &&
@@ -104,7 +115,7 @@ run_check "Configuration Files" "
   echo '✅ All configuration files present'
 "
 
-# 9. Docker Configuration Check (optional)
+# 10. Docker Configuration Check (optional)
 if command -v docker &> /dev/null; then
   run_check "Docker Configuration" "
     echo '🐳 Docker is installed' &&
@@ -120,7 +131,7 @@ else
   echo ""
 fi
 
-# 10. Git Status Check
+# 11. Git Status Check
 run_check "Git Repository Status" "
   echo '📊 Checking git status...' &&
   git status &&

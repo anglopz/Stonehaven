@@ -3,11 +3,11 @@ node_modules/
 .pnp
 .pnp.js
 
-# Testing
+# Testing (Jest/coverage reports — HTML and lcov; regenerate with npm test)
 coverage/
 .nyc_output
 
-# Production
+# Production (compiled output — TS→JS in src/backend/dist, Next in .next; regenerate with npm run build)
 dist/
 build/
 .next/

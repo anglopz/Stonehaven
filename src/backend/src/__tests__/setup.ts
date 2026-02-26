@@ -1,5 +1,14 @@
+import path from 'path';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
+
+// Use project-local cache for MongoDB binaries (avoids EACCES on ~/.cache in CI/sandbox)
+if (!process.env.MONGOMS_DOWNLOAD_DIR) {
+  process.env.MONGOMS_DOWNLOAD_DIR = path.resolve(
+    __dirname,
+    '../../node_modules/.cache/mongodb-binaries'
+  );
+}
 
 let mongoServer: MongoMemoryServer;
 

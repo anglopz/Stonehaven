@@ -170,7 +170,7 @@ export const authApi = {
     try {
       const response = await apiClient.get('/api/user/me');
       return response.data;
-    } catch (error) {
+    } catch {
       return null;
     }
   },

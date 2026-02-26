@@ -87,7 +87,7 @@ export default function RegisterPage() {
     if (result.success) {
       addFlashMessage({
         type: 'success',
-        message: 'Account created successfully! Welcome to ReCamp!',
+        message: 'Account created successfully! Welcome to Stonehaven!',
       });
       router.push(ROUTES.CAMPGROUNDS);
     } else {
@@ -106,7 +106,7 @@ export default function RegisterPage() {
             <UserPlus className="h-8 w-8 text-emerald-600" />
           </div>
           <CardTitle className="text-3xl">Create Account</CardTitle>
-          <p className="mt-2 text-gray-600">Join the ReCamp community</p>
+          <p className="mt-2 text-gray-600">Join the Stonehaven community</p>
         </CardHeader>
 
         <CardContent>

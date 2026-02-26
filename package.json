@@ -1,7 +1,7 @@
 {
-  "name": "recamp-refactored",
+  "name": "stonehaven",
   "version": "2.0.0",
-  "description": "Modernized Recamp application with TypeScript and React",
+  "description": "Stonehaven - Modernized campground application with TypeScript and React",
   "private": true,
   "workspaces": [
     "src/backend",
