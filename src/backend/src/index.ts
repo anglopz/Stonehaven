@@ -24,7 +24,7 @@ if (!isProduction) {
   }
 }
 import methodOverride from 'method-override';
-import ejsMate from 'ejs-mate';
+import cors from 'cors';
 import session from 'express-session';
 import flash from 'connect-flash';
 import passport from 'passport';
@@ -35,7 +35,7 @@ import { connectDatabase } from './config/database';
 import { configurePassport } from './config/passport';
 import { createSessionConfig } from './config/session';
 import { helmetConfig } from './config/helmet';
-import { campgroundsRoutes, reviewsRoutes, usersRoutes, homeRoutes } from './api/routes';
+import { createContainer } from './container';
 import { ExpressError } from './utils';
 
 /**
@@ -51,21 +51,11 @@ const startServer = async (): Promise<void> => {
   // Set query parser
   app.set('query parser', 'extended');
 
-  // View engine setup — use cwd so path works from repo root (local and Render)
-  const projectRoot = process.cwd();
-  const viewsDir = path.join(projectRoot, 'archive', 'legacy', 'views');
-  const publicDir = path.join(projectRoot, 'archive', 'legacy', 'public');
-  app.engine('ejs', ejsMate);
-  app.set('view engine', 'ejs');
-  app.set('views', viewsDir);
-
-  // Body parsing middleware
+  // API-only backend for React frontend — no EJS
+  app.use(cors({ origin: process.env.FRONTEND_URL || true, credentials: true }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-
-  // Other middleware
   app.use(methodOverride('_method'));
-  app.use(express.static(publicDir));
   app.use(mongoSanitize({ replaceWith: '_' }));
 
   // Session configuration
@@ -92,33 +82,29 @@ const startServer = async (): Promise<void> => {
     next();
   });
 
-  // Routes
-  app.use('/', homeRoutes);
-  app.use('/', usersRoutes);
-  app.use('/campgrounds', campgroundsRoutes);
-  app.use('/campgrounds/:id/reviews', reviewsRoutes);
+  // Wire up routes via composition root
+  const container = createContainer();
+  app.use('/', container.homeRoutes);
+  app.use('/', container.userRoutes);
+  app.use('/campgrounds', container.campgroundRoutes);
+  app.use('/campgrounds/:id/reviews', container.reviewRoutes);
 
   // 404 handler (Express 5: '*' is invalid; use regex catch-all)
   app.all(/(.*)/, (_req: Request, _res: Response, next: NextFunction) => {
-    next(new ExpressError('Page not Found', 404));
+    next(new ExpressError('Not Found', 404));
   });
 
-  // Error handler
+  // Error handler — JSON for API
   app.use((err: ExpressError, req: Request, res: Response, _next: NextFunction) => {
-    const { statusCode = 500, message = 'Something Went Wrong' } = err;
-
-    res.status(statusCode).render('error', {
-      err: { ...err, message },
-      nodeEnv: process.env.NODE_ENV,
-      requestInfo:
-        process.env.NODE_ENV === 'development'
-          ? {
-              method: req.method,
-              originalUrl: req.originalUrl,
-              ip: req.ip,
-              userAgent: req.get('User-Agent'),
-            }
-          : null,
+    const statusCode = err.statusCode ?? 500;
+    const message = err.message || 'Something went wrong';
+    res.status(statusCode).json({
+      success: false,
+      message,
+      ...(process.env.NODE_ENV === 'development' && {
+        stack: err.stack,
+        request: { method: req.method, url: req.originalUrl },
+      }),
     });
   });
 

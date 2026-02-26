@@ -17,21 +17,19 @@ router.post(
     const review = await reviewService.createReview(
       req.params.id,
       req.body.review,
-      req.user!._id
+      req.user!._id.toString()
     );
 
     if (!review) {
-      req.flash('error', 'Cannot find that campground!');
-      return res.redirect('/campgrounds');
+      return res.status(404).json({ success: false, message: 'Campground not found' });
     }
 
-    req.flash('success', 'Created new review!');
-    res.redirect(`/campgrounds/${req.params.id}`);
+    return res.status(201).json(review);
   })
 );
 
 /**
- * DELETE /campgrounds/:id/reviews/:reviewId - Delete a review
+ * DELETE /campgrounds/:id/reviews/:reviewId - Delete a review (JSON API)
  */
 router.delete(
   '/:reviewId',
@@ -40,9 +38,7 @@ router.delete(
   catchAsync(async (req: Request, res: Response) => {
     const { id, reviewId } = req.params;
     await reviewService.deleteReview(id, reviewId);
-
-    req.flash('success', 'Successfully deleted review');
-    res.redirect(`/campgrounds/${id}`);
+    res.status(204).send();
   })
 );
 

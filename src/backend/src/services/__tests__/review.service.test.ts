@@ -3,6 +3,7 @@ import { Review } from '../../models/Review';
 import { Campground } from '../../models/Campground';
 import { User } from '../../models/User';
 import { mockCampgroundData } from '../../__tests__/fixtures/campground.fixture';
+import { MongooseReviewRepository, MongooseCampgroundRepository } from '../../adapters/outbound/persistence';
 import { Types } from 'mongoose';
 
 describe('ReviewService', () => {
@@ -11,8 +12,11 @@ describe('ReviewService', () => {
   let testCampground: any;
 
   beforeEach(async () => {
-    service = new ReviewService();
-    
+    service = new ReviewService(
+      new MongooseReviewRepository(),
+      new MongooseCampgroundRepository()
+    );
+
     testUser = await User.create({
       email: 'test@example.com',
       username: 'testuser',
@@ -34,13 +38,13 @@ describe('ReviewService', () => {
       const review = await service.createReview(
         testCampground._id.toString(),
         reviewData,
-        testUser._id
+        testUser._id.toString()
       );
 
       expect(review).toBeDefined();
       expect(review!.body).toBe(reviewData.body);
       expect(review!.rating).toBe(reviewData.rating);
-      expect(review!.author.toString()).toBe(testUser._id.toString());
+      expect(review!.authorId).toBe(testUser._id.toString());
     });
 
     it('should add review reference to campground', async () => {
@@ -52,13 +56,13 @@ describe('ReviewService', () => {
       const review = await service.createReview(
         testCampground._id.toString(),
         reviewData,
-        testUser._id
+        testUser._id.toString()
       );
 
       const updatedCampground = await Campground.findById(testCampground._id);
-      
+
       expect(updatedCampground!.reviews).toHaveLength(1);
-      expect(updatedCampground!.reviews[0].toString()).toBe(review!._id.toString());
+      expect(updatedCampground!.reviews[0].toString()).toBe(review!.id);
     });
 
     it('should return null for non-existent campground', async () => {
@@ -71,7 +75,7 @@ describe('ReviewService', () => {
       const review = await service.createReview(
         fakeId.toString(),
         reviewData,
-        testUser._id
+        testUser._id.toString()
       );
 
       expect(review).toBeNull();
@@ -86,11 +90,11 @@ describe('ReviewService', () => {
       const review = await service.createReview(
         testCampground._id.toString(),
         reviewData,
-        testUser._id
+        testUser._id.toString()
       );
 
-      const foundReview = await Review.findById(review!._id);
-      
+      const foundReview = await Review.findById(review!.id);
+
       expect(foundReview).toBeDefined();
       expect(foundReview!.body).toBe(reviewData.body);
       expect(foundReview!.rating).toBe(reviewData.rating);
@@ -105,13 +109,13 @@ describe('ReviewService', () => {
       await service.createReview(
         testCampground._id.toString(),
         { body: 'First review', rating: 5 },
-        testUser._id
+        testUser._id.toString()
       );
 
       await service.createReview(
         testCampground._id.toString(),
         { body: 'Second review', rating: 4 },
-        user2._id
+        user2._id.toString()
       );
 
       const updatedCampground = await Campground.findById(testCampground._id);
@@ -201,7 +205,7 @@ describe('ReviewService', () => {
       const found = await service.getReviewById(review._id.toString());
 
       expect(found).toBeDefined();
-      expect(found!._id.toString()).toBe(review._id.toString());
+      expect(found!.id).toBe(review._id.toString());
       expect(found!.body).toBe('Test review');
       expect(found!.rating).toBe(5);
     });
@@ -216,9 +220,7 @@ describe('ReviewService', () => {
       const found = await service.getReviewById(review._id.toString());
 
       expect(found).toBeDefined();
-      expect(found!.author).toBeDefined();
-      expect((found!.author as any).username).toBe('testuser');
-      expect((found!.author as any).email).toBe('test@example.com');
+      expect(found!.authorId).toBe(testUser._id.toString());
     });
 
     it('should return null for non-existent review', async () => {

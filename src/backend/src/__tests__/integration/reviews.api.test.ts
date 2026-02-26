@@ -41,7 +41,7 @@ function createTestApp(): Application {
       const review = await reviewService.createReview(
         req.params.id,
         req.body,
-        req.user._id
+        req.user._id.toString()
       );
 
       if (!review) {
@@ -237,7 +237,7 @@ describe('Reviews API Integration Tests', () => {
         .get(`/api/reviews/${review._id}`)
         .expect(200);
 
-      expect(response.body.review._id).toBe(review._id.toString());
+      expect(response.body.review.id).toBe(review._id.toString());
       expect(response.body.review.body).toBe('Test review');
     });
 
@@ -262,8 +262,8 @@ describe('Reviews API Integration Tests', () => {
         .get(`/api/reviews/${review._id}`)
         .expect(200);
 
-      expect(response.body.review).toHaveProperty('author');
-      expect(response.body.review.author.username).toBe('testuser');
+      expect(response.body.review).toHaveProperty('authorId');
+      expect(response.body.review.authorId).toBe(testUser._id.toString());
     });
   });
 
@@ -301,7 +301,7 @@ describe('Reviews API Integration Tests', () => {
       await reviewService.createReview(
         testCampground._id.toString(),
         reviewData,
-        testUser._id
+        testUser._id.toString()
       );
 
       const updatedCampground = await Campground.findById(testCampground._id);

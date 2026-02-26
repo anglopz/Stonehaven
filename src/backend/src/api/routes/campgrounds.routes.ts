@@ -9,28 +9,28 @@ import { campgroundSchema } from '../../validation';
 import { catchAsync } from '../../utils';
 
 const router = Router();
-const upload = multer({ storage });
+const upload = multer({ storage: storage as multer.StorageEngine });
 
 /**
- * GET /campgrounds - List all campgrounds
+ * GET /campgrounds - List all campgrounds (JSON API)
  */
 router.get(
   '/',
   catchAsync(async (_req: Request, res: Response) => {
     const campgrounds = await campgroundService.getAllCampgrounds();
-    res.render('campgrounds/index', { campgrounds });
+    res.json(Array.isArray(campgrounds) ? campgrounds : []);
   })
 );
 
 /**
- * GET /campgrounds/new - Render new campground form
+ * GET /campgrounds/new - 404 (React serves the form)
  */
 router.get('/new', isLoggedIn, (_req: Request, res: Response) => {
-  res.render('campgrounds/new');
+  res.status(404).json({ success: false, message: 'Not found' });
 });
 
 /**
- * POST /campgrounds - Create new campground
+ * POST /campgrounds - Create new campground (JSON API)
  */
 router.post(
   '/',
@@ -40,31 +40,35 @@ router.post(
   catchAsync(async (req: Request, res: Response) => {
     const geoData = await geocoder
       .forwardGeocode({
-        query: req.body.campground.location,
+        query: req.body.campground?.location,
         limit: 1,
       })
       .send();
 
-    const geometry = geoData.body.features[0].geometry as {
+    const features = geoData.body?.features;
+    if (!features?.length) {
+      return res.status(400).json({ success: false, message: 'Could not geocode location' });
+    }
+
+    const geometry = features[0].geometry as {
       type: 'Point';
       coordinates: [number, number];
     };
 
-    const files = req.files as Express.Multer.File[];
+    const files = (req.files as Express.Multer.File[]) ?? [];
     const campground = await campgroundService.createCampground(
       req.body.campground,
       files,
       geometry,
-      req.user!._id
+      req.user!._id.toString()
     );
 
-    req.flash('success', 'Successfully made a new campground!');
-    res.redirect(`/campgrounds/${campground._id}`);
+    return res.status(201).json(campground);
   })
 );
 
 /**
- * GET /campgrounds/:id - Show single campground
+ * GET /campgrounds/:id - Single campground (JSON API)
  */
 router.get(
   '/:id',
@@ -72,16 +76,15 @@ router.get(
     const campground = await campgroundService.getCampgroundById(req.params.id);
 
     if (!campground) {
-      req.flash('error', 'Cannot find that campground!');
-      return res.redirect('/campgrounds');
+      return res.status(404).json({ success: false, message: 'Campground not found' });
     }
 
-    res.render('campgrounds/show', { campground });
+    return res.json(campground);
   })
 );
 
 /**
- * GET /campgrounds/:id/edit - Render edit form
+ * GET /campgrounds/:id/edit - Campground for edit (JSON API)
  */
 router.get(
   '/:id/edit',
@@ -91,16 +94,15 @@ router.get(
     const campground = await campgroundService.getCampgroundById(req.params.id);
 
     if (!campground) {
-      req.flash('error', 'Cannot find that campground!');
-      return res.redirect('/campgrounds');
+      return res.status(404).json({ success: false, message: 'Campground not found' });
     }
 
-    res.render('campgrounds/edit', { campground });
+    return res.json(campground);
   })
 );
 
 /**
- * PUT /campgrounds/:id - Update campground
+ * PUT /campgrounds/:id - Update campground (JSON API)
  */
 router.put(
   '/:id',
@@ -109,7 +111,7 @@ router.put(
   upload.array('images'),
   validateRequest(campgroundSchema),
   catchAsync(async (req: Request, res: Response) => {
-    const files = req.files as Express.Multer.File[];
+    const files = (req.files as Express.Multer.File[]) ?? [];
     const campground = await campgroundService.updateCampground(
       req.params.id,
       req.body.campground,
@@ -118,24 +120,21 @@ router.put(
     );
 
     if (!campground) {
-      req.flash('error', 'Cannot find that campground!');
-      return res.redirect('/campgrounds');
+      return res.status(404).json({ success: false, message: 'Campground not found' });
     }
 
-    // Delete images from Cloudinary if specified
-    if (req.body.deleteImages) {
+    if (req.body.deleteImages && Array.isArray(req.body.deleteImages)) {
       for (const filename of req.body.deleteImages) {
-        await cloudinary.uploader.destroy(filename);
+        await cloudinary.uploader.destroy(filename).catch(() => {});
       }
     }
 
-    req.flash('success', 'Successfully updated campground!');
-    res.redirect(`/campgrounds/${campground._id}`);
+    return res.json(campground);
   })
 );
 
 /**
- * DELETE /campgrounds/:id - Delete campground
+ * DELETE /campgrounds/:id - Delete campground (JSON API)
  */
 router.delete(
   '/:id',
@@ -143,8 +142,7 @@ router.delete(
   isAuthor,
   catchAsync(async (req: Request, res: Response) => {
     await campgroundService.deleteCampground(req.params.id);
-    req.flash('success', 'Successfully deleted campground');
-    res.redirect('/campgrounds');
+    res.status(204).send();
   })
 );
 

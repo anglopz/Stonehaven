@@ -65,7 +65,7 @@ function createTestApp(): Application {
         req.body,
         req.body.images || [],
         req.body.geometry || { type: 'Point', coordinates: [0, 0] },
-        req.user._id
+        req.user._id.toString()
       );
 
       return res.status(201).json({ campground });
@@ -175,7 +175,7 @@ describe('Campgrounds API Integration Tests', () => {
 
       const response = await request(app).get('/api/campgrounds').expect(200);
 
-      expect(response.body.campgrounds[0]).toHaveProperty('author');
+      expect(response.body.campgrounds[0]).toHaveProperty('authorId');
     });
   });
 
@@ -190,7 +190,7 @@ describe('Campgrounds API Integration Tests', () => {
         .get(`/api/campgrounds/${campground._id}`)
         .expect(200);
 
-      expect(response.body.campground._id).toBe(campground._id.toString());
+      expect(response.body.campground.id).toBe(campground._id.toString());
       expect(response.body.campground.title).toBe(mockCampgroundData.title);
     });
 

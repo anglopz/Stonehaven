@@ -27,15 +27,19 @@ describe('Auth Middleware', () => {
       isLoggedIn(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalled();
-      expect(mockRes.redirect).not.toHaveBeenCalled();
+      expect(mockRes.status).not.toHaveBeenCalledWith(401);
     });
 
-    it('should redirect to login if user is not authenticated', () => {
+    it('should respond 401 JSON if user is not authenticated', () => {
       mockReq.isAuthenticated = jest.fn().mockReturnValue(false) as any;
 
       isLoggedIn(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.redirect).toHaveBeenCalledWith('/login');
+      expect(mockRes.status).toHaveBeenCalledWith(401);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'You must be signed in',
+      });
       expect(mockNext).not.toHaveBeenCalled();
     });
 
@@ -119,10 +123,10 @@ describe('Auth Middleware', () => {
       await isAuthor(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalled();
-      expect(mockRes.redirect).not.toHaveBeenCalled();
+      expect(mockRes.status).not.toHaveBeenCalledWith(403);
     });
 
-    it('should redirect if user is not the author', async () => {
+    it('should respond 403 JSON if user is not the author', async () => {
       const otherUser = await User.create({
         email: 'other@example.com',
         username: 'otheruser',
@@ -132,27 +136,37 @@ describe('Auth Middleware', () => {
 
       await isAuthor(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.redirect).toHaveBeenCalledWith(`/campgrounds/${testCampground._id}`);
-      expect(mockReq.flash).toHaveBeenCalledWith('error', 'You do not have permission');
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'You do not have permission',
+      });
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('should redirect if campground does not exist', async () => {
+    it('should respond 404 JSON if campground does not exist', async () => {
       mockReq.params = { id: '507f1f77bcf86cd799439011' }; // Non-existent ID
 
       await isAuthor(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.redirect).toHaveBeenCalledWith('/campgrounds');
-      expect(mockReq.flash).toHaveBeenCalledWith('error', 'Cannot find that campground!');
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Campground not found',
+      });
     });
 
-    it('should redirect if user is not logged in', async () => {
+    it('should respond 403 JSON if user is not logged in', async () => {
       mockReq.user = undefined;
 
       await isAuthor(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.redirect).toHaveBeenCalled();
-      expect(mockReq.flash).toHaveBeenCalledWith('error', 'You do not have permission');
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'You do not have permission',
+      });
+      expect(mockNext).not.toHaveBeenCalled();
     });
 
     it('should call next with error if exception occurs', async () => {
@@ -205,10 +219,10 @@ describe('Auth Middleware', () => {
       await isReviewAuthor(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalled();
-      expect(mockRes.redirect).not.toHaveBeenCalled();
+      expect(mockRes.status).not.toHaveBeenCalledWith(403);
     });
 
-    it('should redirect if user is not the review author', async () => {
+    it('should respond 403 JSON if user is not the review author', async () => {
       const otherUser = await User.create({
         email: 'other@example.com',
         username: 'otheruser',
@@ -218,27 +232,37 @@ describe('Auth Middleware', () => {
 
       await isReviewAuthor(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.redirect).toHaveBeenCalledWith(`/campgrounds/${testCampground._id}`);
-      expect(mockReq.flash).toHaveBeenCalledWith('error', 'You do not have permission');
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'You do not have permission',
+      });
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('should redirect if review does not exist', async () => {
+    it('should respond 404 JSON if review does not exist', async () => {
       mockReq.params!.reviewId = '507f1f77bcf86cd799439011'; // Non-existent ID
 
       await isReviewAuthor(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.redirect).toHaveBeenCalledWith(`/campgrounds/${testCampground._id}`);
-      expect(mockReq.flash).toHaveBeenCalledWith('error', 'Cannot find that review!');
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Review not found',
+      });
     });
 
-    it('should redirect if user is not logged in', async () => {
+    it('should respond 403 JSON if user is not logged in', async () => {
       mockReq.user = undefined;
 
       await isReviewAuthor(mockReq as Request, mockRes as Response, mockNext);
 
-      expect(mockRes.redirect).toHaveBeenCalled();
-      expect(mockReq.flash).toHaveBeenCalledWith('error', 'You do not have permission');
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'You do not have permission',
+      });
+      expect(mockNext).not.toHaveBeenCalled();
     });
 
     it('should call next with error if exception occurs', async () => {

@@ -1,12 +1,13 @@
 import { UserService } from '../user.service';
 import { User } from '../../models/User';
+import { MongooseUserRepository } from '../../adapters/outbound/persistence';
 import { Types } from 'mongoose';
 
 describe('UserService', () => {
   let service: UserService;
 
   beforeEach(() => {
-    service = new UserService();
+    service = new UserService(new MongooseUserRepository());
   });
 
   describe('registerUser', () => {
@@ -42,7 +43,7 @@ describe('UserService', () => {
       );
 
       const userObj = user!.toObject();
-      
+
       // Should have hash and salt fields added by passport-local-mongoose
       expect((userObj).hash).toBeDefined();
       expect((userObj).salt).toBeDefined();
@@ -87,7 +88,7 @@ describe('UserService', () => {
       const found = await service.getUserById(registered!._id.toString());
 
       expect(found).toBeDefined();
-      expect(found!._id.toString()).toBe(registered!._id.toString());
+      expect(found!.id).toBe(registered!._id.toString());
       expect(found!.email).toBe('test@example.com');
       expect(found!.username).toBe('testuser');
     });

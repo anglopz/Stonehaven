@@ -1,7 +1,9 @@
 import { CampgroundService } from '../campground.service';
 import { Campground } from '../../models/Campground';
+import { Review } from '../../models/Review';
 import { User } from '../../models/User';
 import { mockCampgroundData } from '../../__tests__/fixtures/campground.fixture';
+import { MongooseCampgroundRepository } from '../../adapters/outbound/persistence';
 import { Types } from 'mongoose';
 
 describe('CampgroundService', () => {
@@ -9,7 +11,7 @@ describe('CampgroundService', () => {
   let testUser: any;
 
   beforeEach(async () => {
-    service = new CampgroundService();
+    service = new CampgroundService(new MongooseCampgroundRepository());
     testUser = await User.create({
       email: 'test@example.com',
       username: 'testuser',
@@ -52,7 +54,7 @@ describe('CampgroundService', () => {
       const found = await service.getCampgroundById(campground._id.toString());
 
       expect(found).toBeDefined();
-      expect(found!._id.toString()).toBe(campground._id.toString());
+      expect(found!.id).toBe(campground._id.toString());
       expect(found!.title).toBe(campground.title);
     });
 
@@ -65,8 +67,7 @@ describe('CampgroundService', () => {
       const found = await service.getCampgroundById(campground._id.toString());
 
       expect(found).toBeDefined();
-      expect(found!.author).toBeDefined();
-      expect((found!.author as any).username).toBe('testuser');
+      expect(found!.authorId).toBe(testUser._id.toString());
     });
 
     it('should return null for non-existent campground', async () => {
@@ -81,7 +82,6 @@ describe('CampgroundService', () => {
         author: testUser._id,
       });
 
-      const { Review } = require('../../models/Review');
       const review = await Review.create({
         body: 'Great place!',
         rating: 5,
@@ -94,8 +94,7 @@ describe('CampgroundService', () => {
       const found = await service.getCampgroundById(campground._id.toString());
 
       expect(found).toBeDefined();
-      expect(found!.reviews).toHaveLength(1);
-      expect((found!.reviews[0] as any).body).toBe('Great place!');
+      expect(found!.reviewIds).toHaveLength(1);
     });
   });
 
@@ -120,15 +119,15 @@ describe('CampgroundService', () => {
         },
         images,
         geometry,
-        testUser._id
+        testUser._id.toString()
       );
 
-      expect(campground._id).toBeDefined();
+      expect(campground.id).toBeDefined();
       expect(campground.title).toBe('New Campground');
       expect(campground.images).toHaveLength(2);
       expect(campground.images[0].url).toBe('https://example.com/image1.jpg');
       expect(campground.geometry.coordinates).toEqual([-122.4194, 37.7749]);
-      expect(campground.author.toString()).toBe(testUser._id.toString());
+      expect(campground.authorId).toBe(testUser._id.toString());
     });
 
     it('should save campground to database', async () => {
@@ -147,10 +146,10 @@ describe('CampgroundService', () => {
         },
         images,
         geometry,
-        testUser._id
+        testUser._id.toString()
       );
 
-      const found = await Campground.findById(campground._id);
+      const found = await Campground.findById(campground.id);
       expect(found).toBeDefined();
       expect(found!.title).toBe('Test Campground');
     });
@@ -210,11 +209,8 @@ describe('CampgroundService', () => {
       );
 
       expect(updated).toBeDefined();
-      
-      // Refetch to get updated image list
-      const refetched = await Campground.findById(campground._id);
-      expect(refetched!.images).toHaveLength(1);
-      expect(refetched!.images[0].filename).toBe('image2');
+      expect(updated!.images).toHaveLength(1);
+      expect(updated!.images[0].filename).toBe('image2');
     });
 
     it('should return null for non-existent campground', async () => {
@@ -235,17 +231,16 @@ describe('CampgroundService', () => {
 
       const deleted = await service.deleteCampground(campground._id.toString());
 
-      expect(deleted).toBeDefined();
-      expect(deleted!._id.toString()).toBe(campground._id.toString());
+      expect(deleted).toBe(true);
 
       const found = await Campground.findById(campground._id);
       expect(found).toBeNull();
     });
 
-    it('should return null when deleting non-existent campground', async () => {
+    it('should return false when deleting non-existent campground', async () => {
       const fakeId = new Types.ObjectId();
       const deleted = await service.deleteCampground(fakeId.toString());
-      expect(deleted).toBeNull();
+      expect(deleted).toBe(false);
     });
 
     it('should trigger cascade delete for reviews', async () => {
@@ -254,7 +249,6 @@ describe('CampgroundService', () => {
         author: testUser._id,
       });
 
-      const { Review } = require('../../models/Review');
       const review = await Review.create({
         body: 'Test review',
         rating: 5,

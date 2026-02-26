@@ -1,112 +1,93 @@
-import { Campground } from '../models/Campground';
-import { ICampground } from '../types';
-import { Types } from 'mongoose';
+import type { ICampgroundRepository } from '../domain/repositories';
+import type { CampgroundEntity, ImageVO } from '../domain/entities';
+import type { GeometryVO } from '../domain/entities';
+import { MongooseCampgroundRepository } from '../adapters/outbound/persistence';
+
+const DEFAULT_IMAGE_URL =
+  'https://images.unsplash.com/photo-1508873696983-2dfd5898f08b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80';
 
 /**
  * Service layer for Campground business logic
  */
 export class CampgroundService {
-  /**
-   * Get all campgrounds
-   */
-  async getAllCampgrounds(): Promise<ICampground[]> {
-    return await Campground.find({});
+  constructor(private readonly campgroundRepo: ICampgroundRepository) {}
+
+  async getAllCampgrounds(): Promise<CampgroundEntity[]> {
+    return this.campgroundRepo.findAll();
   }
 
-  /**
-   * Get a single campground by ID with populated reviews and author
-   */
-  async getCampgroundById(id: string): Promise<ICampground | null> {
-    return await Campground.findById(id)
-      .populate({
-        path: 'reviews',
-        populate: {
-          path: 'author',
-        },
-      })
-      .populate('author');
+  async getCampgroundById(id: string): Promise<CampgroundEntity | null> {
+    return this.campgroundRepo.findByIdWithRelations(id);
   }
 
-  /**
-   * Create a new campground
-   */
   async createCampground(
-    campgroundData: Partial<ICampground>,
+    campgroundData: { title: string; price: number; description: string; location: string },
     images: Array<{ path: string; filename: string }>,
-    geometry: { type: 'Point'; coordinates: [number, number] },
-    authorId: Types.ObjectId
-  ): Promise<ICampground> {
-    const campground = new Campground(campgroundData);
-    campground.geometry = geometry;
-    campground.images = images.map((file) => ({ url: file.path, filename: file.filename }));
-    campground.author = authorId;
-    await campground.save();
-    return campground;
+    geometry: GeometryVO,
+    authorId: string
+  ): Promise<CampgroundEntity> {
+    return this.campgroundRepo.create({
+      title: campgroundData.title,
+      price: campgroundData.price,
+      description: campgroundData.description,
+      location: campgroundData.location,
+      images: images.map((file) => ({ url: file.path, filename: file.filename })),
+      geometry,
+      authorId,
+      reviewIds: [],
+    });
   }
 
-  /**
-   * Update a campground
-   */
   async updateCampground(
     id: string,
-    campgroundData: Partial<ICampground>,
+    campgroundData: { title?: string; price?: number; description?: string; location?: string },
     newImages?: Array<{ path: string; filename: string }>,
     deleteImages?: string[]
-  ): Promise<ICampground | null> {
-    const campground = await Campground.findByIdAndUpdate(id, campgroundData, { new: true });
+  ): Promise<CampgroundEntity | null> {
+    const updated = await this.campgroundRepo.update(id, campgroundData);
+    if (!updated) return null;
 
-    if (!campground) {
-      return null;
-    }
+    let result = updated;
 
-    // Add new images if provided
     if (newImages && newImages.length > 0) {
-      const imgs = newImages.map((file) => ({ url: file.path, filename: file.filename }));
-      campground.images.push(...imgs);
+      const imgs: ImageVO[] = newImages.map((file) => ({
+        url: file.path,
+        filename: file.filename,
+      }));
+      const withImages = await this.campgroundRepo.addImages(id, imgs);
+      if (withImages) result = withImages;
     }
 
-    // Remove images if specified
     if (deleteImages && deleteImages.length > 0) {
-      await campground.updateOne({ $pull: { images: { filename: { $in: deleteImages } } } });
+      const withoutImages = await this.campgroundRepo.removeImages(id, deleteImages);
+      if (withoutImages) result = withoutImages;
     }
 
-    await campground.save();
-    return campground;
+    return result;
   }
 
-  /**
-   * Delete a campground
-   */
-  async deleteCampground(id: string): Promise<ICampground | null> {
-    return await Campground.findByIdAndDelete(id);
+  async deleteCampground(id: string): Promise<boolean> {
+    return this.campgroundRepo.delete(id);
   }
 
-  /**
-   * Get featured campgrounds for home page
-   */
-  async getFeaturedCampgrounds(limit: number = 3): Promise<ICampground[]> {
-    const campgrounds = await Campground.find().limit(limit);
+  async getFeaturedCampgrounds(limit: number = 3): Promise<CampgroundEntity[]> {
+    const campgrounds = await this.campgroundRepo.findMany(limit);
 
-    // Ensure all campgrounds have at least one image
     return campgrounds.map((campground) => {
       if (!campground.images || campground.images.length === 0) {
-        campground.images = [
-          {
-            url: 'https://images.unsplash.com/photo-1508873696983-2dfd5898f08b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-            filename: 'default-campground',
-          },
-        ];
+        return {
+          ...campground,
+          images: [{ url: DEFAULT_IMAGE_URL, filename: 'default-campground' }],
+        };
       }
       return campground;
     });
   }
 
-  /**
-   * Get count of all campgrounds
-   */
   async getCampgroundCount(): Promise<number> {
-    return await Campground.countDocuments();
+    return this.campgroundRepo.count();
   }
 }
 
-export const campgroundService = new CampgroundService();
+// Backward-compatible default instance (removed once container is used everywhere)
+export const campgroundService = new CampgroundService(new MongooseCampgroundRepository());
